@@ -133,16 +133,14 @@ def encode_varint(num):
         return chr(255) + struct.pack("<Q", num)
 
 def format_message_for_signing(message):
-    header = "Bitcoin Signed Message:\n"
+    header = "MassGrid Signed Message:\n"
     return encode_varint(len(header)) + header + encode_varint(len(message)) + message
 
 def private_key_to_secret_check_compressed(private_key):
     encoded = B58().unwrap(private_key)
-
     if len(encoded) < 1:
         return None, None
-
-    if encoded[0] != chr(0x80):
+    if encoded[0] != chr(0x19):
         return None, None
 
     if len(encoded) == 33:
@@ -157,7 +155,7 @@ def private_key_to_secret(private_key):
     return secret
 
 def secret_to_private_key(secret, compressed):
-    encoded = chr(0x80) + ecdsa.util.number_to_string(secret, SECP256k1.order)
+    encoded = chr(0x19) + ecdsa.util.number_to_string(secret, SECP256k1.order)
     if compressed:
         encoded = encoded + chr(0x01)
     return B58().wrap(encoded)
@@ -166,7 +164,7 @@ def generate_secret():
     return ecdsa.util.randrange(SECP256k1.order)
 
 def public_key_to_address(public_key):
-    addrtype = 0
+    addrtype = 50
     md = hashlib.new('ripemd160')
     md.update(hashlib.sha256(public_key).digest())
     return B58().wrap(chr(addrtype) + md.digest())
@@ -350,7 +348,7 @@ def encrypt(public_key, message):
     cipher = AES.new(key=k_E, mode=AES.MODE_CTR, counter=ctr)
     c = cipher.encrypt(padded)
     d = hmac.new(k_M, prefix_bytes + c, hashlib.sha256).digest()
-    return textwrap.fill(base64.b64encode(encode_point(R, True) + d + prefix_bytes + c), 200)
+    return base64.b64encode(encode_point(R, True) + d + prefix_bytes + c)
 
 def decrypt(private_key, message):
     secret = private_key_to_secret(private_key)
