@@ -131,22 +131,29 @@ if __name__ == "__main__":
                 print 'send : {%s}'%jsonstr
                 sock.sendall(jsonstr)
             elif cmd == 'connect':
+                connectuserip=raw_input('input connectuserip\n')
+                connectuserport=raw_input('input connectuserport\n')
                 if connectuserip =='' or connectuserport=='' :
                     continue
 
                 try:
                     sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock2.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-                    sock2.bind(('127.0.0.1',9999))
-                    sock2.setblocking(0)
+                    sock2.bind(('',9999))
+                    sock3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock3.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+                    sock3.bind(('',9999))
+                    #sock2.setblocking(0)
                     sock2.connect((connectuserip, connectuserport))
                 except:
-                    sock2.listen(2)
+                    sock3.listen(5)
                     while True:
                         print ('server waiting...')
-                        conn,addr = sock2.accept()
+                        conn,addr = sock3.accept()
                         client_data = conn.recv(1024)
                         print 'reach: ',(str(client_data,'utf8'))
                         conn.sendall(bytes('wany','utf8'))
+                else:
+                        print 'connection success'
             response(sock)
         sock.close()
