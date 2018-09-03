@@ -144,8 +144,12 @@ if __name__ == "__main__":
                     sock3.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
                     sock3.bind(('',9999))
                     #sock2.setblocking(0)
-                    sock2.connect((connectuserip, connectuserport))
-                except:
+                    sock2.connect((connectuserip,int(connectuserport)))
+                    print 'connected'
+                except Exception as e:
+                    
+                    print 'error',e.message
+                    sock2.close()
                     sock3.listen(5)
                     while True:
                         print ('server waiting...')
@@ -154,6 +158,6 @@ if __name__ == "__main__":
                         print 'reach: ',(str(client_data,'utf8'))
                         conn.sendall(bytes('wany','utf8'))
                 else:
-                        print 'connection success'
+                    print 'connection success'
             response(sock)
         sock.close()
